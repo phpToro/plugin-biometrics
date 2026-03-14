@@ -11,6 +11,10 @@
                     "description": "This app uses Face ID for authentication"
                 }
             ]
+        },
+        "macos": {
+            "handlers": ["ios/BiometricsHandler.swift"],
+            "frameworks": ["LocalAuthentication"]
         }
     },
     "js": ["js/biometrics.js"],

@@ -1,0 +1,20 @@
+{
+    "name": "Biometrics",
+    "namespace": "biometrics",
+    "platforms": {
+        "ios": {
+            "handlers": ["ios/BiometricsHandler.swift"],
+            "frameworks": ["LocalAuthentication"],
+            "permissions": [
+                {
+                    "key": "NSFaceIDUsageDescription",
+                    "description": "This app uses Face ID for authentication"
+                }
+            ]
+        }
+    },
+    "js": ["js/biometrics.js"],
+    "php": {
+        "files": ["php/Biometrics.php"]
+    }
+}

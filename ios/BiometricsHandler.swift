@@ -1,7 +1,7 @@
 import Foundation
 import LocalAuthentication
 
-final class BiometricsHandler: NativeHandler {
+final class BiometricsHandler: AsyncHandler {
     let namespace = "biometrics"
 
     var onAsyncCallback: ((String, Any?) -> Void)?
@@ -45,6 +45,8 @@ final class BiometricsHandler: NativeHandler {
         let reason = args["reason"] as? String ?? "Authenticate to continue"
         let ref = args["_callbackRef"] as? String
 
+        dbg.log("Biometrics", "authenticate() called, ref=\(ref ?? "nil"), onAsyncCallback=\(onAsyncCallback == nil ? "nil" : "set")")
+
         let context = LAContext()
 
         if let fallbackTitle = args["fallbackTitle"] as? String {
@@ -56,17 +58,23 @@ final class BiometricsHandler: NativeHandler {
 
         var error: NSError?
         guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            dbg.log("Biometrics", "canEvaluatePolicy failed: \(error?.localizedDescription ?? "unknown")")
             return [
                 "success": false,
                 "error": error?.localizedDescription ?? "Biometrics not available"
             ]
         }
 
+        dbg.log("Biometrics", "calling evaluatePolicy...")
+
         context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, error in
+            dbg.log("Biometrics", "evaluatePolicy completed: success=\(success), error=\(error?.localizedDescription ?? "none")")
+            dbg.log("Biometrics", "onAsyncCallback is \(self.onAsyncCallback == nil ? "nil" : "set"), ref=\(ref ?? "nil")")
             self.onAsyncCallback?(ref ?? "", [
                 "success": success,
                 "error": error?.localizedDescription as Any
             ])
+            dbg.log("Biometrics", "onAsyncCallback invoked")
         }
 
         return ["status": "authenticating"]
